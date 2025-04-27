@@ -53,3 +53,9 @@ or
 - Then **WT = TAT - BT**.  
   ➔ "Turnaround minus Burst gives Waiting."
 
+algorithms
+1 . FCFS
+2 . Shortest job first (premtive / non-premptive) in non-preptive case just execute process completely
+3 . Priority based (premtive / non-premptive) in non-preptive case just execute process completely
+4 . Round robin
+5 .
