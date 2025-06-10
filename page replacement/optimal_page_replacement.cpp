@@ -1,103 +1,77 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <unordered_map>
 using namespace std;
 
+// Function to find the page to be replaced
+int predict(vector<int> &pages, vector<int> &frames, int index) {
+    int farthest = index;
+    int res = -1;
 
-class OptimalPageReplacement {
-private:
-    int frameCount; // Number of frames in memory
-
-public:
-    OptimalPageReplacement(int frameCount) {
-        this->frameCount = frameCount;
+    for (int i = 0; i < frames.size(); i++) {
+        int j;
+        for (j = index; j < pages.size(); j++) {
+            if (frames[i] == pages[j]) {
+                if (j > farthest) {
+                    farthest = j;
+                    res = i;
+                }
+                break;
+            }
+        }
+        // If the page is never used again
+        if (j == pages.size()) {
+            return i;
+        }
     }
 
-    // Function to simulate Optimal page replacement
-    void pageFaults(const vector<int>& pageReferences) {
-        int pageFaults = 0;
-        vector<int> frames; // To store pages in memory
+    return (res == -1) ? 0 : res;
+}
 
-        for (int i = 0; i < pageReferences.size(); i++) {
-            int page = pageReferences[i];
-            cout << "Page Reference: " << page << " -> ";
+int optimalPageReplacement(vector<int> pages, int capacity) {
+    vector<int> frames;
+    int pageFaults = 0;
 
-            // If the page is already in memory (no page fault)
-            if (find(frames.begin(), frames.end(), page) != frames.end()) {
-                printMemoryState(frames);
-                continue;
-            }
+    for (int i = 0; i < pages.size(); i++) {
+        int page = pages[i];
 
-            pageFaults++;
-
-            // If there is space in memory, add the new page
-            if (frames.size() < frameCount) {
-                frames.push_back(page);
-            } else {
-                // Memory is full, find the page to replace using OPT
-                int farthest = -1;
-                int pageToReplace = -1;
-
-                // Find the page to replace
-                for (int j = 0; j < frames.size(); j++) {
-                    int frame = frames[j];
-                    auto it = find(pageReferences.begin() + i, pageReferences.end(), frame);
-                    if (it == pageReferences.end()) {
-                        pageToReplace = frame;
-                        break;
-                    } else {
-                        if (it - pageReferences.begin() > farthest) {
-                            farthest = it - pageReferences.begin();
-                            pageToReplace = frame;
-                        }
-                    }
-                }
-
-                // Replace the farthest page
-                for (int j = 0; j < frames.size(); j++) {
-                    if (frames[j] == pageToReplace) {
-                        frames[j] = page;
-                        break;
-                    }
-                }
-            }
-
-            // Print current memory state
-            printMemoryState(frames);
+        // If page is already in memory
+        if (find(frames.begin(), frames.end(), page) != frames.end()) {
+            continue;
         }
 
-        cout << "Total Page Faults: " << pageFaults << endl;
+        // If there's space in memory
+        if (frames.size() < capacity) {
+            frames.push_back(page);
+        } else {
+            int pos = predict(pages, frames, i + 1);
+            frames[pos] = page;
+        }
+
+        pageFaults++;
     }
 
-    // Function to print current memory state
-    void printMemoryState(const vector<int>& frames) {
-        cout << "Memory State: ";
-        for (int i : frames) {
-            cout << i << " ";
-        }
-        cout << endl;
-    }
-};
+    return pageFaults;
+}
 
 int main() {
-    // Hardcoded page references and frame count
-    vector<int> pageReferences = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3};
-    int frameCount = 3;
+    int n, capacity;
 
-    OptimalPageReplacement opt(frameCount);
-    opt.pageFaults(pageReferences);
+    cout << "Enter number of pages: ";
+    cin >> n;
+
+    vector<int> pages(n);
+    cout << "Enter page reference string: ";
+    for (int i = 0; i < n; i++) {
+        cin >> pages[i];
+    }
+
+    cout << "Enter frame capacity: ";
+    cin >> capacity;
+
+    int faults = optimalPageReplacement(pages, capacity);
+    cout << "Total Page Faults: " << faults << endl;
 
     return 0;
 }
-
-/*
-Page Reference: 7 -> Memory State: 7 
-Page Reference: 0 -> Memory State: 7 0
-Page Reference: 1 -> Memory State: 7 0 1
-Page Reference: 2 -> Memory State: 2 0 1
-Page Reference: 0 -> Memory State: 2 0 1
-Page Reference: 3 -> Memory State: 2 0 3
-Page Reference: 0 -> Memory State: 2 0 3
-Page Reference: 4 -> Memory State: 2 4 3
-Page Reference: 2 -> Memory State: 2 4 3
-Page Reference: 3 -> Memory State: 2 4 3
-Total Page Faults: 6
-*/
