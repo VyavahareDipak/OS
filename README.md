@@ -62,7 +62,7 @@ Input: List of processes with
        - PI: Process ID 
        - AT: Arrival Time 
        - BT: Burst Time
-
+## 1 . FCFS
 1. Sort all processes by Arrival Time (AT).
    If two processes have the same AT, use PI as tie-breaker.
 
